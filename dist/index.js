@@ -31983,7 +31983,7 @@ const run = async () => {
         // Initialize Gemini LLM service
         const geminiService = new gemini_1.GeminiService({
             apiKey: geminiApiKey,
-            model: 'gemini-1.5-flash' // You can make this configurable via environment variable too
+            model: process.env.GEMINI_MODEL || 'gemini-2.5-flash'
         });
         // Initialize markdown document creator
         const documentCreator = new md_create_1.MarkdownDocumentCreator(geminiService);
