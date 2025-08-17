@@ -1,0 +1,14 @@
+name: 'Release Note Bot'
+description: 'Generate release notes when /note is commented on a PR'
+author: 'Navoda Munasinha'
+inputs:
+  github-token:
+    description: 'GitHub token for API access'
+    required: true
+    default: ${{ github.token }}
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  icon: 'file-text'
+  color: 'blue'
