@@ -49,14 +49,27 @@ const run = async (): Promise<void> => {
     core.info(`Head Branch: ${prContext.pullRequest.headBranch}`);
     core.info(`PR Body: ${prContext.pullRequest.body}`);
     
-    core.info('\n========== COMMITS ==========');
+    core.info('\n========== COMMITS WITH FILE CHANGES ==========');
     core.info(`Total commits: ${prContext.commits.length}`);
     prContext.commits.forEach((commit, index) => {
-      core.info(`Commit ${index + 1}:`);
+      core.info(`\n--- Commit ${index + 1} ---`);
       core.info(`  SHA: ${commit.sha}`);
       core.info(`  Author: ${commit.author}`);
       core.info(`  Message: ${commit.message}`);
       core.info(`  Timestamp: ${commit.timestamp}`);
+      core.info(`  Files changed: ${commit.fileChanges.length}`);
+      
+      commit.fileChanges.forEach((file, fileIndex) => {
+        core.info(`\n    File ${fileIndex + 1}:`);
+        core.info(`      Filename: ${file.filename}`);
+        core.info(`      Status: ${file.status}`);
+        core.info(`      Additions: ${file.additions}`);
+        core.info(`      Deletions: ${file.deletions}`);
+        if (file.patch) {
+          core.info(`      Changes:`);
+          core.info(`${file.patch}`);
+        }
+      });
     });
     
     core.info('\n========== COMMENTS ==========');
@@ -84,9 +97,11 @@ const run = async (): Promise<void> => {
     
     core.info('\n========== SUMMARY ==========');
     core.info(`Successfully collected context for PR #${prNumber}:`);
+    const totalFileChanges = prContext.commits.reduce((total, commit) => total + commit.fileChanges.length, 0);
     core.info(`- Commits: ${prContext.commits.length}`);
     core.info(`- Comments: ${prContext.comments.length}`);
-    core.info(`- File changes: ${prContext.fileChanges.length}`);
+    core.info(`- Total file changes across all commits: ${totalFileChanges}`);
+    core.info(`- Unique files changed: ${prContext.fileChanges.length}`);
     
   } catch (error) {
     if (error instanceof Error) {

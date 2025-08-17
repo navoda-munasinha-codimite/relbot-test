@@ -67,16 +67,20 @@ export class GitHubContextCollector implements ContextCollectorService {
         }
       )) {
         for (const commit of response.data) {
+          // Fetch file changes for this specific commit
+          const fileChanges = await this.fetchCommitFileChanges(owner, repo, commit.sha);
+          
           commits.push({
             sha: commit.sha,
             message: commit.commit.message,
             author: commit.commit.author?.name || commit.author?.login || 'unknown',
             timestamp: commit.commit.author?.date || new Date().toISOString(),
+            fileChanges,
           });
         }
       }
       
-      core.info(`Fetched ${commits.length} commits`);
+      core.info(`Fetched ${commits.length} commits with their file changes`);
     } catch (error) {
       core.error(`Error fetching commits: ${error}`);
     }
@@ -165,6 +169,34 @@ export class GitHubContextCollector implements ContextCollectorService {
       core.info(`Fetched ${fileChanges.length} file changes`);
     } catch (error) {
       core.error(`Error fetching file changes: ${error}`);
+    }
+    
+    return fileChanges;
+  }
+
+  private async fetchCommitFileChanges(owner: string, repo: string, sha: string): Promise<FileChange[]> {
+    const fileChanges: FileChange[] = [];
+    
+    try {
+      const { data: commit } = await this.octokit.rest.repos.getCommit({
+        owner,
+        repo,
+        ref: sha,
+      });
+      
+      if (commit.files) {
+        for (const file of commit.files) {
+          fileChanges.push({
+            filename: file.filename,
+            status: file.status,
+            additions: file.additions,
+            deletions: file.deletions,
+            patch: file.patch,
+          });
+        }
+      }
+    } catch (error) {
+      core.error(`Error fetching file changes for commit ${sha}: ${error}`);
     }
     
     return fileChanges;

@@ -14,6 +14,7 @@ export interface CommitInfo {
   message: string;
   author: string;
   timestamp: string;
+  fileChanges: FileChange[];
 }
 
 export interface CommentInfo {
