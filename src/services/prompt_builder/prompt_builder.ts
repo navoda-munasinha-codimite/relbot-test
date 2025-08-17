@@ -1,19 +1,13 @@
 import { PRContext, CommitInfo } from '../context_collector/context.interface';
-import * as fs from 'fs';
-import * as path from 'path';
+import { md_template } from '../md_docs/template.md';
 
 export class PromptBuilder {
-  private templatePath: string;
-
-  constructor() {
-    this.templatePath = path.join(__dirname, '..', 'md_docs', 'template.md');
-  }
 
   /**
    * Build initial prompt with template and PR information
    */
   buildInitialPrompt(prContext: PRContext): string {
-    const template = this.loadTemplate();
+    const template = md_template;
     
     return `
 You are part of a larger document generation process. This is the initial step to create a development release note.
@@ -98,17 +92,6 @@ ${currentDoc}
 
 Provide the final, optimized development release note.
 `;
-  }
-
-  /**
-   * Load the markdown template
-   */
-  private loadTemplate(): string {
-    try {
-      return fs.readFileSync(this.templatePath, 'utf-8');
-    } catch (error) {
-      throw new Error(`Failed to load template: ${error}`);
-    }
   }
 
   /**

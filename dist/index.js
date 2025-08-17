@@ -32294,57 +32294,69 @@ exports.MarkdownDocumentCreator = MarkdownDocumentCreator;
 
 /***/ }),
 
-/***/ 7477:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ 8591:
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.md_template = void 0;
+exports.md_template = `# {{PROJECT_NAME}}
+**Release - {{RELEASE_VERSION}}**
+
+## Overview
+- {{OVERVIEW_POINT_1}}
+- {{OVERVIEW_POINT_2}}
+- {{OVERVIEW_POINT_3}}
+
+---
+
+**Author:** {{PR_AUTHOR}}  
+**Contributors:** {{CONTRIBUTORS}}  
+**Created On:** {{CREATED_DATE}}  
+**Visibility:** Internal Use Only  
+
+---
+
+## Release Information
+
+| Field | Value |
+|-------|-------|
+| **Release Name** | {{RELEASE_NAME}} |
+| **Release Version** | {{RELEASE_VERSION}} |
+| **Release Type** | {{RELEASE_TYPE}} |
+
+## Release Description 
+- {{RELEASE_DESCRIPTION_POINT_1}}
+- {{RELEASE_DESCRIPTION_POINT_2}}
+- {{RELEASE_DESCRIPTION_POINT_3}}
+
+## Impacted Areas & Changes
+
+| Component | Status |
+|-----------|--------|
+| **{{COMPONENT_1}}** | {{COMPONENT_1_STATUS}} |
+| **{{COMPONENT_2}}** | {{COMPONENT_2_STATUS}} |
+| **{{COMPONENT_3}}** | {{COMPONENT_3_STATUS}} |
+| **{{COMPONENT_4}}** | {{COMPONENT_4_STATUS}} |`;
+
+
+/***/ }),
+
+/***/ 7477:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PromptBuilder = void 0;
-const fs = __importStar(__nccwpck_require__(9896));
-const path = __importStar(__nccwpck_require__(6928));
+const template_md_1 = __nccwpck_require__(8591);
 class PromptBuilder {
-    constructor() {
-        this.templatePath = path.join(__dirname, '..', 'md_docs', 'template.md');
-    }
     /**
      * Build initial prompt with template and PR information
      */
     buildInitialPrompt(prContext) {
-        const template = this.loadTemplate();
+        const template = template_md_1.md_template;
         return `
 You are part of a larger document generation process. This is the initial step to create a development release note.
 
@@ -32425,17 +32437,6 @@ ${currentDoc}
 
 Provide the final, optimized development release note.
 `;
-    }
-    /**
-     * Load the markdown template
-     */
-    loadTemplate() {
-        try {
-            return fs.readFileSync(this.templatePath, 'utf-8');
-        }
-        catch (error) {
-            throw new Error(`Failed to load template: ${error}`);
-        }
     }
     /**
      * Format file changes for the prompt

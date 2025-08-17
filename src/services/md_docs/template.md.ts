@@ -1,4 +1,4 @@
-# {{PROJECT_NAME}}
+export const md_template = `# {{PROJECT_NAME}}
 **Release - {{RELEASE_VERSION}}**
 
 ## Overview
@@ -35,4 +35,4 @@
 | **{{COMPONENT_1}}** | {{COMPONENT_1_STATUS}} |
 | **{{COMPONENT_2}}** | {{COMPONENT_2_STATUS}} |
 | **{{COMPONENT_3}}** | {{COMPONENT_3_STATUS}} |
-| **{{COMPONENT_4}}** | {{COMPONENT_4_STATUS}} |
+| **{{COMPONENT_4}}** | {{COMPONENT_4_STATUS}} |`
