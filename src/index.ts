@@ -1,11 +1,24 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { GitHubContextCollector } from './services/context_collector/github_context';
+import { MarkdownDocumentCreator } from './services/md_docs/md_create';
+import { GeminiService } from './services/llm/gemini';
+
+// Load environment variables for local development
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 const run = async (): Promise<void> => {
   try {
     // Get the GitHub token from action inputs
     const token = core.getInput('github-token', { required: true });
+    
+    // Get Gemini API key from environment variables
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY environment variable is required');
+    }
     
     // Get the event payload
     const context = github.context;
@@ -40,68 +53,25 @@ const run = async (): Promise<void> => {
     // Collect all PR context
     const prContext = await contextCollector.collectContext(owner, repo, prNumber);
     
-    // Output collected context
-    core.info('========== COLLECTED PR CONTEXT ==========');
-    core.info(`PR Title: ${prContext.pullRequest.title}`);
-    core.info(`PR Number: ${prContext.pullRequest.number}`);
-    core.info(`PR Author: ${prContext.pullRequest.author}`);
-    core.info(`Base Branch: ${prContext.pullRequest.baseBranch}`);
-    core.info(`Head Branch: ${prContext.pullRequest.headBranch}`);
-    core.info(`PR Body: ${prContext.pullRequest.body}`);
-    
-    core.info('\n========== COMMITS WITH FILE CHANGES ==========');
-    core.info(`Total commits: ${prContext.commits.length}`);
-    prContext.commits.forEach((commit, index) => {
-      core.info(`\n--- Commit ${index + 1} ---`);
-      core.info(`  SHA: ${commit.sha}`);
-      core.info(`  Author: ${commit.author}`);
-      core.info(`  Message: ${commit.message}`);
-      core.info(`  Timestamp: ${commit.timestamp}`);
-      core.info(`  Files changed: ${commit.fileChanges.length}`);
-      
-      commit.fileChanges.forEach((file, fileIndex) => {
-        core.info(`\n    File ${fileIndex + 1}:`);
-        core.info(`      Filename: ${file.filename}`);
-        core.info(`      Status: ${file.status}`);
-        core.info(`      Additions: ${file.additions}`);
-        core.info(`      Deletions: ${file.deletions}`);
-        if (file.patch) {
-          core.info(`      Changes:`);
-          core.info(`${file.patch}`);
-        }
-      });
+    // Initialize Gemini LLM service
+    const geminiService = new GeminiService({
+      apiKey: geminiApiKey,
+      model: process.env.GEMINI_MODEL || 'gemini-2.5-flash'
     });
     
-    core.info('\n========== COMMENTS ==========');
-    core.info(`Total comments: ${prContext.comments.length}`);
-    prContext.comments.forEach((comment, index) => {
-      core.info(`Comment ${index + 1}:`);
-      core.info(`  ID: ${comment.id}`);
-      core.info(`  Author: ${comment.author}`);
-      core.info(`  Created: ${comment.createdAt}`);
-      core.info(`  Body: ${comment.body.substring(0, 100)}${comment.body.length > 100 ? '...' : ''}`);
-    });
+    // Initialize markdown document creator
+    const documentCreator = new MarkdownDocumentCreator(geminiService);
     
-    core.info('\n========== FILE CHANGES ==========');
-    core.info(`Total file changes: ${prContext.fileChanges.length}`);
-    prContext.fileChanges.forEach((file, index) => {
-      core.info(`File ${index + 1}:`);
-      core.info(`  Filename: ${file.filename}`);
-      core.info(`  Status: ${file.status}`);
-      core.info(`  Additions: ${file.additions}`);
-      core.info(`  Deletions: ${file.deletions}`);
-      if (file.patch) {
-        core.info(`  Patch (first 1000 chars): ${file.patch.substring(0, 1000)}${file.patch.length > 1000 ? '...' : ''}`);
-      }
-    });
+    // Generate release note
+    core.info('Generating release note...');
+    const releaseNote = await documentCreator.generateReleaseNote(prContext);
     
-    core.info('\n========== SUMMARY ==========');
-    core.info(`Successfully collected context for PR #${prNumber}:`);
-    const totalFileChanges = prContext.commits.reduce((total, commit) => total + commit.fileChanges.length, 0);
-    core.info(`- Commits: ${prContext.commits.length}`);
-    core.info(`- Comments: ${prContext.comments.length}`);
-    core.info(`- Total file changes across all commits: ${totalFileChanges}`);
-    core.info(`- Unique files changed: ${prContext.fileChanges.length}`);
+    // Output the generated release note
+    core.info('========== GENERATED RELEASE NOTE ==========');
+    core.info(releaseNote);
+    core.info('===============================================');
+    
+    core.info(`Release note generated successfully for PR #${prNumber}`);
     
   } catch (error) {
     if (error instanceof Error) {

@@ -36,7 +36,6 @@ export interface PRContext {
   pullRequest: PullRequestContext;
   commits: CommitInfo[];
   comments: CommentInfo[];
-  fileChanges: FileChange[];
 }
 
 export interface ContextCollectorService {

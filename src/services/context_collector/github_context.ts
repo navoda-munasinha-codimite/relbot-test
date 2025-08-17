@@ -39,15 +39,11 @@ export class GitHubContextCollector implements ContextCollectorService {
     
     // Fetch comments
     const comments = await this.fetchComments(owner, repo, prNumber);
-    
-    // Fetch file changes
-    const fileChanges = await this.fetchFileChanges(owner, repo, prNumber);
 
     return {
       pullRequest,
       commits,
       comments,
-      fileChanges,
     };
   }
 
@@ -139,39 +135,6 @@ export class GitHubContextCollector implements ContextCollectorService {
     }
     
     return comments;
-  }
-
-  private async fetchFileChanges(owner: string, repo: string, prNumber: number): Promise<FileChange[]> {
-    core.info(`Fetching file changes for PR #${prNumber}`);
-    const fileChanges: FileChange[] = [];
-    
-    try {
-      for await (const response of this.octokit.paginate.iterator(
-        this.octokit.rest.pulls.listFiles,
-        {
-          owner,
-          repo,
-          pull_number: prNumber,
-          per_page: 100,
-        }
-      )) {
-        for (const file of response.data) {
-          fileChanges.push({
-            filename: file.filename,
-            status: file.status,
-            additions: file.additions,
-            deletions: file.deletions,
-            patch: file.patch,
-          });
-        }
-      }
-      
-      core.info(`Fetched ${fileChanges.length} file changes`);
-    } catch (error) {
-      core.error(`Error fetching file changes: ${error}`);
-    }
-    
-    return fileChanges;
   }
 
   private async fetchCommitFileChanges(owner: string, repo: string, sha: string): Promise<FileChange[]> {
