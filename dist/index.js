@@ -30001,14 +30001,26 @@ const run = async () => {
         core.info(`Base Branch: ${prContext.pullRequest.baseBranch}`);
         core.info(`Head Branch: ${prContext.pullRequest.headBranch}`);
         core.info(`PR Body: ${prContext.pullRequest.body}`);
-        core.info('\n========== COMMITS ==========');
+        core.info('\n========== COMMITS WITH FILE CHANGES ==========');
         core.info(`Total commits: ${prContext.commits.length}`);
         prContext.commits.forEach((commit, index) => {
-            core.info(`Commit ${index + 1}:`);
+            core.info(`\n--- Commit ${index + 1} ---`);
             core.info(`  SHA: ${commit.sha}`);
             core.info(`  Author: ${commit.author}`);
             core.info(`  Message: ${commit.message}`);
             core.info(`  Timestamp: ${commit.timestamp}`);
+            core.info(`  Files changed: ${commit.fileChanges.length}`);
+            commit.fileChanges.forEach((file, fileIndex) => {
+                core.info(`\n    File ${fileIndex + 1}:`);
+                core.info(`      Filename: ${file.filename}`);
+                core.info(`      Status: ${file.status}`);
+                core.info(`      Additions: ${file.additions}`);
+                core.info(`      Deletions: ${file.deletions}`);
+                if (file.patch) {
+                    core.info(`      Changes:`);
+                    core.info(`${file.patch}`);
+                }
+            });
         });
         core.info('\n========== COMMENTS ==========');
         core.info(`Total comments: ${prContext.comments.length}`);
@@ -30028,14 +30040,16 @@ const run = async () => {
             core.info(`  Additions: ${file.additions}`);
             core.info(`  Deletions: ${file.deletions}`);
             if (file.patch) {
-                core.info(`  Patch (first 200 chars): ${file.patch.substring(0, 200)}${file.patch.length > 200 ? '...' : ''}`);
+                core.info(`  Patch (first 1000 chars): ${file.patch.substring(0, 1000)}${file.patch.length > 1000 ? '...' : ''}`);
             }
         });
         core.info('\n========== SUMMARY ==========');
         core.info(`Successfully collected context for PR #${prNumber}:`);
+        const totalFileChanges = prContext.commits.reduce((total, commit) => total + commit.fileChanges.length, 0);
         core.info(`- Commits: ${prContext.commits.length}`);
         core.info(`- Comments: ${prContext.comments.length}`);
-        core.info(`- File changes: ${prContext.fileChanges.length}`);
+        core.info(`- Total file changes across all commits: ${totalFileChanges}`);
+        core.info(`- Unique files changed: ${prContext.fileChanges.length}`);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -30140,15 +30154,18 @@ class GitHubContextCollector {
                 per_page: 100,
             })) {
                 for (const commit of response.data) {
+                    // Fetch file changes for this specific commit
+                    const fileChanges = await this.fetchCommitFileChanges(owner, repo, commit.sha);
                     commits.push({
                         sha: commit.sha,
                         message: commit.commit.message,
                         author: commit.commit.author?.name || commit.author?.login || 'unknown',
                         timestamp: commit.commit.author?.date || new Date().toISOString(),
+                        fileChanges,
                     });
                 }
             }
-            core.info(`Fetched ${commits.length} commits`);
+            core.info(`Fetched ${commits.length} commits with their file changes`);
         }
         catch (error) {
             core.error(`Error fetching commits: ${error}`);
@@ -30222,6 +30239,31 @@ class GitHubContextCollector {
         }
         catch (error) {
             core.error(`Error fetching file changes: ${error}`);
+        }
+        return fileChanges;
+    }
+    async fetchCommitFileChanges(owner, repo, sha) {
+        const fileChanges = [];
+        try {
+            const { data: commit } = await this.octokit.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: sha,
+            });
+            if (commit.files) {
+                for (const file of commit.files) {
+                    fileChanges.push({
+                        filename: file.filename,
+                        status: file.status,
+                        additions: file.additions,
+                        deletions: file.deletions,
+                        patch: file.patch,
+                    });
+                }
+            }
+        }
+        catch (error) {
+            core.error(`Error fetching file changes for commit ${sha}: ${error}`);
         }
         return fileChanges;
     }
