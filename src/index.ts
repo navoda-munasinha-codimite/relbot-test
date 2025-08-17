@@ -78,7 +78,7 @@ const run = async (): Promise<void> => {
       core.info(`  Additions: ${file.additions}`);
       core.info(`  Deletions: ${file.deletions}`);
       if (file.patch) {
-        core.info(`  Patch (first 200 chars): ${file.patch.substring(0, 200)}${file.patch.length > 200 ? '...' : ''}`);
+        core.info(`  Patch (first 1000 chars): ${file.patch.substring(0, 1000)}${file.patch.length > 1000 ? '...' : ''}`);
       }
     });
     
