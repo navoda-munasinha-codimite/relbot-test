@@ -52,26 +52,33 @@ const run = async (): Promise<void> => {
     
     // Collect all PR context
     const prContext = await contextCollector.collectContext(owner, repo, prNumber);
-    
-    // Initialize Gemini LLM service
-    const geminiService = new GeminiService({
-      apiKey: geminiApiKey,
-      model: process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+
+    prContext.commits.forEach(c => {
+      core.info(`Commit: ${c.sha} - ${c.message} by ${c.author}`);
+      c.fileChanges.forEach(fc => {
+        core.info(`  File: ${fc.filename} (${fc.status}:  ${fc.patch})`);
+      });
     });
     
-    // Initialize markdown document creator
-    const documentCreator = new MarkdownDocumentCreator(geminiService);
+    // // Initialize Gemini LLM service
+    // const geminiService = new GeminiService({
+    //   apiKey: geminiApiKey,
+    //   model: process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+    // });
     
-    // Generate release note
-    core.info('Generating release note...');
-    const releaseNote = await documentCreator.generateReleaseNote(prContext);
+    // // Initialize markdown document creator
+    // const documentCreator = new MarkdownDocumentCreator(geminiService);
     
-    // Output the generated release note
-    core.info('========== GENERATED RELEASE NOTE ==========');
-    core.info(releaseNote);
-    core.info('===============================================');
+    // // Generate release note
+    // core.info('Generating release note...');
+    // const releaseNote = await documentCreator.generateReleaseNote(prContext);
     
-    core.info(`Release note generated successfully for PR #${prNumber}`);
+    // // Output the generated release note
+    // core.info('========== GENERATED RELEASE NOTE ==========');
+    // core.info(releaseNote);
+    // core.info('===============================================');
+    
+    // core.info(`Release note generated successfully for PR #${prNumber}`);
     
   } catch (error) {
     if (error instanceof Error) {
