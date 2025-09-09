@@ -30417,8 +30417,6 @@ const run = async () => {
         }
         // Get the event payload
         const context = github.context;
-        core.info(`Event name: ${context.eventName}`);
-        core.info(`Event payload: ${JSON.stringify(context.payload, null, 2)}`);
         // Check if this is a comment event on a PR
         if (context.eventName !== 'issue_comment' || !context.payload.issue?.pull_request) {
             core.info('This action only runs on pull request comments');
@@ -30443,7 +30441,7 @@ const run = async () => {
         prContext.commits.forEach(c => {
             core.info(`Commit: ${c.sha} - ${c.message} by ${c.author}`);
             c.fileChanges.forEach(fc => {
-                core.info(`  File: ${fc.filename} (${fc.status}:  ${fc.patch})`);
+                core.info(`  File: ${fc.filename}   Path:  ${fc.patch})`);
             });
         });
         // // Initialize Gemini LLM service
