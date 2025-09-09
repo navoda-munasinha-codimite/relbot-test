@@ -15,6 +15,9 @@ const run = async (): Promise<void> => {
     // Get the GitHub token from action inputs
     const token = core.getInput('github-token', { required: true });
     
+    // Get PR number from action inputs
+    const prNumber = parseInt(core.getInput('pr_number', { required: true }));
+    
     // Get Gemini API key from environment variables
     const geminiApiKey = process.env.GEMINI_API_KEY;
     if (!geminiApiKey) {
@@ -24,23 +27,9 @@ const run = async (): Promise<void> => {
     // Get the event payload
     const context = github.context;
     
-    // Check if this is a comment event on a PR
-    if (context.eventName !== 'issue_comment' || !context.payload.issue?.pull_request) {
-      core.info('This action only runs on pull request comments');
-      return;
-    }
-    
-    // Check if the comment contains /note
-    const comment = context.payload.comment?.body || '';
-    if (!comment.includes('/note')) {
-      core.info('Comment does not contain /note command');
-      return;
-    }
-    
-    // Extract PR information from the event
+    // Extract repository information from the context
     const owner = context.repo.owner;
     const repo = context.repo.repo;
-    const prNumber = context.payload.issue.number;
     
     core.info(`Processing /note command for PR #${prNumber} in ${owner}/${repo}`);
     

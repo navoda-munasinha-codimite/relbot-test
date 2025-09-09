@@ -6,6 +6,9 @@ inputs:
     description: 'GitHub token for API access'
     required: true
     default: ${{ github.token }}
+  pr_number:
+    description: 'Pull request number'
+    required: true
 runs:
   using: 'node20'
   main: 'dist/index.js'
