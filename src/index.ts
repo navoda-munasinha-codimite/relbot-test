@@ -53,7 +53,7 @@ const run = async (): Promise<void> => {
     prContext.commits.forEach(c => {
       core.info(`Commit: ${c.sha} - ${c.message} by ${c.author}`);
       c.fileChanges.forEach(fc => {
-        core.info(`  File: ${fc.filename}   Path:  ${fc.patch})`);
+        core.info(`  File: ${fc.filename} (${fc.status})`);
       });
     });
     
