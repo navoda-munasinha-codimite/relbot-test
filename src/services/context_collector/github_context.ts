@@ -151,11 +151,18 @@ export class GitHubContextCollector implements ContextCollectorService {
         for (const file of commit.files) {
 
           // Determine impact area based on file path
-          let impactArea: "admin_panel" | "extension" | undefined;
-          if (file.filename.startsWith('Studio/Studio')) {
-            impactArea = "admin_panel";
-          } else if (file.filename.startsWith('chrome-extension')) {
-            impactArea = "extension";
+          // let impactArea: "admin_panel" | "extension" | undefined;
+          // if (file.filename.startsWith('Studio/Studio')) {
+          //   impactArea = "admin_panel";
+          // } else if (file.filename.startsWith('chrome-extension')) {
+          //   impactArea = "extension";
+          // }
+
+          let impactArea: "components" | "main" | undefined;
+          if (file.filename.startsWith('src/components')) {
+            impactArea = "components";
+          } else if (file.filename.startsWith('src/App')) {
+            impactArea = "main";
           }
 
           fileChanges.push({

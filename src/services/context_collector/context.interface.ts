@@ -30,7 +30,9 @@ export interface FileChange {
   additions: number;
   deletions: number;
   patch?: string;
-  impactArea?: "admin_panel" | "extension"; // e.g., "admin_panel", "extension"
+  // impactArea?: "admin_panel" | "extension"; // e.g., "admin_panel", "extension"
+  impactArea?: "components" | "main"; // e.g., "components", "main"
+
 }
 
 export interface PRContext {

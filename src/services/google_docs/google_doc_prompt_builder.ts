@@ -3,8 +3,8 @@ import { PRContext, CommitInfo } from '../context_collector/context.interface';
 const dataStructure = `{
     "overview": "string (overview of all changes. should be small like below 30 words)",
     "release_description": "string (detailed description of the release. should be in detail and need pointwise separated with a newline)",
-    "impacted_areas_extension": "string (small one or two line description of impacted areas in extension)",
-    "impacted_areas_admin_panel": "string (small one or two line description of impacted areas in admin panel)",
+    "impacted_areas_components": "string (small one or two line description of impacted areas in components)",
+    "impacted_areas_main": "string (small one or two line description of impacted areas in main)",
     "summary_of_changes": "string (summary of changes in the release. should be short and need pointwise separated with a newline)"
 }`;
 
