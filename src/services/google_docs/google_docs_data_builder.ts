@@ -1,6 +1,7 @@
 import { PRContext } from '../context_collector/context.interface';
 import { GoogleDocsPromptBuilder } from './google_doc_prompt_builder';
 import { LLMService } from '../llm/llm.interface';
+import * as core from '@actions/core';
 
 export interface GoogleDocsData {
   overview: string;
@@ -78,10 +79,11 @@ export class GoogleDocsDataBuilder {
    */
   private parseCurrentDocument(): GoogleDocsData {
     try {
+      core.info('Parsing current document JSON...  jsonString: ' + this.currentDoc);
       const parsedData = JSON.parse(this.currentDoc);
       
       // Validate that all required fields are present
-      const requiredFields = ['overview', 'release_description', 'impacted_areas_extension', 'impacted_areas_admin_panel', 'summary_of_changes'];
+      const requiredFields = ['overview', 'release_description', 'impacted_areas_components', 'impacted_areas_main', 'summary_of_changes'];
       for (const field of requiredFields) {
         if (!(field in parsedData)) {
           throw new Error(`Missing required field: ${field}`);
