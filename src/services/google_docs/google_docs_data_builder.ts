@@ -5,8 +5,8 @@ import { LLMService } from '../llm/llm.interface';
 export interface GoogleDocsData {
   overview: string;
   release_description: string;
-  impacted_areas_extension: string;
-  impacted_areas_admin_panel: string;
+  impacted_areas_components: string;
+  impacted_areas_main: string;
   summary_of_changes: string;
 }
 
@@ -91,8 +91,8 @@ export class GoogleDocsDataBuilder {
       return {
         overview: parsedData.overview || '',
         release_description: parsedData.release_description || '',
-        impacted_areas_extension: parsedData.impacted_areas_extension || '',
-        impacted_areas_admin_panel: parsedData.impacted_areas_admin_panel || '',
+        impacted_areas_components: parsedData.impacted_areas_components || '',
+        impacted_areas_main: parsedData.impacted_areas_main || '',
         summary_of_changes: parsedData.summary_of_changes || ''
       };
     } catch (error) {

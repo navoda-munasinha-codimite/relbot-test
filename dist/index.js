@@ -31986,6 +31986,7 @@ const run = async () => {
         // Initialize Google Docs data builder
         const googleDocsDataBuilder = new google_docs_data_builder_1.GoogleDocsDataBuilder(geminiService);
         const releaseData = await googleDocsDataBuilder.generateReleaseData(prContext);
+        core.info('Generating Google Docs structured data...');
         // Output the structured data
         core.info('========== GENERATED GOOGLE DOCS DATA ==========');
         core.info(JSON.stringify(releaseData, null, 2));
@@ -32394,8 +32395,8 @@ class GoogleDocsDataBuilder {
             return {
                 overview: parsedData.overview || '',
                 release_description: parsedData.release_description || '',
-                impacted_areas_extension: parsedData.impacted_areas_extension || '',
-                impacted_areas_admin_panel: parsedData.impacted_areas_admin_panel || '',
+                impacted_areas_components: parsedData.impacted_areas_components || '',
+                impacted_areas_main: parsedData.impacted_areas_main || '',
                 summary_of_changes: parsedData.summary_of_changes || ''
             };
         }

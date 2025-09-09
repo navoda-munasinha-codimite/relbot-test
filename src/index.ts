@@ -64,6 +64,8 @@ const run = async (): Promise<void> => {
     const googleDocsDataBuilder = new GoogleDocsDataBuilder(geminiService);
     const releaseData = await googleDocsDataBuilder.generateReleaseData(prContext);
 
+    core.info('Generating Google Docs structured data...');
+
     // Output the structured data
     core.info('========== GENERATED GOOGLE DOCS DATA ==========');
     core.info(JSON.stringify(releaseData, null, 2));
