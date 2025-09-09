@@ -3,6 +3,7 @@ import * as github from '@actions/github';
 import { GitHubContextCollector } from './services/context_collector/github_context';
 import { MarkdownDocumentCreator } from './services/md_docs/md_create';
 import { GeminiService } from './services/llm/gemini';
+import { GoogleDocsDataBuilder } from './services/google_docs/google_docs_data_builder';
 
 // Load environment variables for local development
 if (process.env.NODE_ENV !== 'production') {
@@ -49,19 +50,12 @@ const run = async (): Promise<void> => {
     
     // Collect all PR context
     const prContext = await contextCollector.collectContext(owner, repo, prNumber);
-
-    prContext.commits.forEach(c => {
-      core.info(`Commit: ${c.sha} - ${c.message} by ${c.author}`);
-      c.fileChanges.forEach(fc => {
-        core.info(`  File: ${fc.filename} (${fc.status})`);
-      });
-    });
     
-    // // Initialize Gemini LLM service
-    // const geminiService = new GeminiService({
-    //   apiKey: geminiApiKey,
-    //   model: process.env.GEMINI_MODEL || 'gemini-2.5-flash'
-    // });
+    // Initialize Gemini LLM service
+    const geminiService = new GeminiService({
+      apiKey: geminiApiKey,
+      model: process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+    });
     
     // // Initialize markdown document creator
     // const documentCreator = new MarkdownDocumentCreator(geminiService);
@@ -76,6 +70,16 @@ const run = async (): Promise<void> => {
     // core.info('===============================================');
     
     // core.info(`Release note generated successfully for PR #${prNumber}`);
+
+    // Initialize Google Docs data builder
+    const googleDocsDataBuilder = new GoogleDocsDataBuilder(geminiService);
+    const releaseData = await googleDocsDataBuilder.generateReleaseData(prContext);
+
+    // Output the structured data
+    core.info('========== GENERATED GOOGLE DOCS DATA ==========');
+    core.info(JSON.stringify(releaseData, null, 2));
+    core.info('===============================================');
+    core.info(`Google Docs data generated successfully for PR #${prNumber}`);
     
   } catch (error) {
     if (error instanceof Error) {

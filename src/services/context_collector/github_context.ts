@@ -149,12 +149,22 @@ export class GitHubContextCollector implements ContextCollectorService {
       
       if (commit.files) {
         for (const file of commit.files) {
+
+          // Determine impact area based on file path
+          let impactArea: "admin_panel" | "extension" | undefined;
+          if (file.filename.startsWith('Studio/Studio')) {
+            impactArea = "admin_panel";
+          } else if (file.filename.startsWith('chrome-extension')) {
+            impactArea = "extension";
+          }
+
           fileChanges.push({
             filename: file.filename,
             status: file.status,
             additions: file.additions,
             deletions: file.deletions,
             patch: file.patch,
+            impactArea
           });
         }
       }
