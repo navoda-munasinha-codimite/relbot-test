@@ -31950,6 +31950,8 @@ const run = async () => {
     try {
         // Get the GitHub token from action inputs
         const token = core.getInput('github-token', { required: true });
+        // Get PR number from action inputs
+        const prNumber = parseInt(core.getInput('pr_number', { required: true }));
         // Get Gemini API key from environment variables
         const geminiApiKey = process.env.GEMINI_API_KEY;
         if (!geminiApiKey) {
@@ -31957,21 +31959,9 @@ const run = async () => {
         }
         // Get the event payload
         const context = github.context;
-        // Check if this is a comment event on a PR
-        if (context.eventName !== 'issue_comment' || !context.payload.issue?.pull_request) {
-            core.info('This action only runs on pull request comments');
-            return;
-        }
-        // Check if the comment contains /note
-        const comment = context.payload.comment?.body || '';
-        if (!comment.includes('/note')) {
-            core.info('Comment does not contain /note command');
-            return;
-        }
-        // Extract PR information from the event
+        // Extract repository information from the context
         const owner = context.repo.owner;
         const repo = context.repo.repo;
-        const prNumber = context.payload.issue.number;
         core.info(`Processing /note command for PR #${prNumber} in ${owner}/${repo}`);
         // Create the context collector service
         const octokit = github.getOctokit(token);
@@ -32174,12 +32164,18 @@ class GitHubContextCollector {
             if (commit.files) {
                 for (const file of commit.files) {
                     // Determine impact area based on file path
+                    // let impactArea: "admin_panel" | "extension" | undefined;
+                    // if (file.filename.startsWith('Studio/Studio')) {
+                    //   impactArea = "admin_panel";
+                    // } else if (file.filename.startsWith('chrome-extension')) {
+                    //   impactArea = "extension";
+                    // }
                     let impactArea;
-                    if (file.filename.startsWith('Studio/Studio')) {
-                        impactArea = "admin_panel";
+                    if (file.filename.startsWith('src/components')) {
+                        impactArea = "components";
                     }
-                    else if (file.filename.startsWith('chrome-extension')) {
-                        impactArea = "extension";
+                    else if (file.filename.startsWith('src/App')) {
+                        impactArea = "main";
                     }
                     fileChanges.push({
                         filename: file.filename,
@@ -32213,8 +32209,8 @@ exports.GoogleDocsPromptBuilder = void 0;
 const dataStructure = `{
     "overview": "string (overview of all changes. should be small like below 30 words)",
     "release_description": "string (detailed description of the release. should be in detail and need pointwise separated with a newline)",
-    "impacted_areas_extension": "string (small one or two line description of impacted areas in extension)",
-    "impacted_areas_admin_panel": "string (small one or two line description of impacted areas in admin panel)",
+    "impacted_areas_components": "string (small one or two line description of impacted areas in components)",
+    "impacted_areas_main": "string (small one or two line description of impacted areas in main)",
     "summary_of_changes": "string (summary of changes in the release. should be short and need pointwise separated with a newline)"
 }`;
 class GoogleDocsPromptBuilder {
