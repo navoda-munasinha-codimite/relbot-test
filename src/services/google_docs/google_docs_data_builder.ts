@@ -80,7 +80,16 @@ export class GoogleDocsDataBuilder {
   private parseCurrentDocument(): GoogleDocsData {
     try {
       core.info('Parsing current document JSON...  jsonString: ' + this.currentDoc);
-      const parsedData = JSON.parse(this.currentDoc);
+      // Extract JSON content between { and }
+      const startIndex = this.currentDoc.indexOf('{');
+      const endIndex = this.currentDoc.lastIndexOf('}');
+      
+      if (startIndex === -1 || endIndex === -1) {
+        throw new Error('No valid JSON object found in response');
+      }
+      
+      const filteredJsonString = this.currentDoc.substring(startIndex, endIndex + 1);
+      const parsedData = JSON.parse(filteredJsonString);
       
       // Validate that all required fields are present
       const requiredFields = ['overview', 'release_description', 'impacted_areas_components', 'impacted_areas_main', 'summary_of_changes'];
