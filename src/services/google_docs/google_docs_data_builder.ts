@@ -26,8 +26,8 @@ export class GoogleDocsDataBuilder {
    */
   async generateReleaseData(prContext: PRContext): Promise<GoogleDocsData> {
     try {
-      // Step 1: Generate initial document from template
-      await this.generateInitialDocument(prContext);
+      // // Step 1: Generate initial document from template
+      // await this.generateInitialDocument(prContext);
       
       // Step 2: Process each commit and update document
       for (const commit of prContext.commits) {

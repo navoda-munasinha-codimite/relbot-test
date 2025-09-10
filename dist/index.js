@@ -31983,10 +31983,10 @@ const run = async () => {
         // core.info(releaseNote);
         // core.info('===============================================');
         // core.info(`Release note generated successfully for PR #${prNumber}`);
+        core.info('Generating Google Docs structured data...');
         // Initialize Google Docs data builder
         const googleDocsDataBuilder = new google_docs_data_builder_1.GoogleDocsDataBuilder(geminiService);
         const releaseData = await googleDocsDataBuilder.generateReleaseData(prContext);
-        core.info('Generating Google Docs structured data...');
         // Output the structured data
         core.info('========== GENERATED GOOGLE DOCS DATA ==========');
         core.info(JSON.stringify(releaseData, null, 2));
@@ -32374,8 +32374,8 @@ class GoogleDocsDataBuilder {
      */
     async generateReleaseData(prContext) {
         try {
-            // Step 1: Generate initial document from template
-            await this.generateInitialDocument(prContext);
+            // // Step 1: Generate initial document from template
+            // await this.generateInitialDocument(prContext);
             // Step 2: Process each commit and update document
             for (const commit of prContext.commits) {
                 await this.processCommitChanges(commit, prContext);

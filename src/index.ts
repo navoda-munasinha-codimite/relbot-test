@@ -59,12 +59,12 @@ const run = async (): Promise<void> => {
     // core.info('===============================================');
     
     // core.info(`Release note generated successfully for PR #${prNumber}`);
+    core.info('Generating Google Docs structured data...');
 
     // Initialize Google Docs data builder
     const googleDocsDataBuilder = new GoogleDocsDataBuilder(geminiService);
     const releaseData = await googleDocsDataBuilder.generateReleaseData(prContext);
 
-    core.info('Generating Google Docs structured data...');
 
     // Output the structured data
     core.info('========== GENERATED GOOGLE DOCS DATA ==========');
